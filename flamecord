@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
- 
+
 case "$1" in
     "rb" | "rbp" | "rebuild")
         scripts/rebuildPatches.sh
