@@ -1,0 +1,413 @@
+From 5bd6939857a7272ad7c338e202a7196010121aa8 Mon Sep 17 00:00:00 2001
+From: Marc Baloup <marc.baloup@laposte.net>
+Date: Sat, 1 Oct 2016 23:26:27 +0200
+Subject: [PATCH] Change projet configuration and POM for Pandacube
+
+
+diff --git a/api/pom.xml b/api/pom.xml
+index 0680a5a5..1d46bfb4 100644
+--- a/api/pom.xml
++++ b/api/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-api</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -20,25 +19,25 @@
+ 
+     <dependencies>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-chat</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-config</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-event</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-protocol</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+diff --git a/bootstrap/pom.xml b/bootstrap/pom.xml
+index 7a9e8258..0efba9cd 100644
+--- a/bootstrap/pom.xml
++++ b/bootstrap/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-bootstrap</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -29,7 +28,7 @@
+ 
+     <dependencies>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-proxy</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+diff --git a/chat/pom.xml b/chat/pom.xml
+index cfa0e16e..dbe64d6d 100644
+--- a/chat/pom.xml
++++ b/chat/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-chat</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+diff --git a/config/pom.xml b/config/pom.xml
+index 67e2500f..212c7371 100644
+--- a/config/pom.xml
++++ b/config/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-config</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+diff --git a/event/pom.xml b/event/pom.xml
+index 563783e9..4263081e 100644
+--- a/event/pom.xml
++++ b/event/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-event</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+diff --git a/log/pom.xml b/log/pom.xml
+index 3663d6d9..f1e8ace8 100644
+--- a/log/pom.xml
++++ b/log/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-log</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -26,7 +25,7 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-chat</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+diff --git a/log4j/pom.xml b/log4j/pom.xml
+index 7ec6e530..87c200d2 100644
+--- a/log4j/pom.xml
++++ b/log4j/pom.xml
+@@ -3,13 +3,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-log4j</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+diff --git a/native/pom.xml b/native/pom.xml
+index 652a869d..2f87f4c2 100644
+--- a/native/pom.xml
++++ b/native/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-native</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+diff --git a/pom.xml b/pom.xml
+index 8d86e36c..5b701203 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -3,14 +3,7 @@
+          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+ 
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-super</artifactId>
+-        <version>dev-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
++    <groupId>fr.pandacube.pandacord</groupId>
+     <artifactId>waterfall-parent</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>pom</packaging>
+@@ -129,7 +122,7 @@
+                 <artifactId>scriptus</artifactId>
+                 <version>0.4.1</version>
+                 <configuration>
+-                    <format>git:${project.name}:${project.version}:%s:${build.number}</format>
++                    <format>git:PandaCord:${project.version}:%s:${build.number}</format>
+                 </configuration>
+                 <executions>
+                     <execution>
+@@ -201,6 +194,62 @@
+                 </configuration>
+             </plugin>
+         </plugins>
++        <pluginManagement>
++            <plugins>
++                <!--This plugin's configuration is used to store Eclipse
++                    m2e settings only. It has no influence on the Maven build itself. -->
++                <plugin>
++                    <groupId>org.eclipse.m2e</groupId>
++                    <artifactId>lifecycle-mapping</artifactId>
++                    <version>1.0.0</version>
++                    <configuration>
++                        <lifecycleMappingMetadata>
++                            <pluginExecutions>
++                                <pluginExecution>
++                                    <pluginExecutionFilter>
++                                        <groupId>net.md-5</groupId>
++                                        <artifactId>scriptus</artifactId>
++                                        <versionRange>[0.3.1,)</versionRange>
++                                        <goals>
++                                            <goal>describe</goal>
++                                        </goals>
++                                    </pluginExecutionFilter>
++                                    <action>
++                                        <execute>
++                                            <runOnIncremental>false</runOnIncremental>
++                                        </execute>
++                                    </action>
++                                </pluginExecution>
++                                <pluginExecution>
++                                    <pluginExecutionFilter>
++                                        <groupId>org.apache.maven.plugins</groupId>
++                                        <artifactId>maven-enforcer-plugin</artifactId>
++                                        <versionRange>[1.0.0,)</versionRange>
++                                        <goals>
++                                            <goal>enforce</goal>
++                                        </goals>
++                                    </pluginExecutionFilter>
++                                    <action>
++                                        <ignore />
++                                    </action>
++                                </pluginExecution>
++                                <pluginExecution>
++                                    <pluginExecutionFilter>
++                                        <groupId>org.apache.maven.plugins</groupId>
++                                        <artifactId>maven-checkstyle-plugin</artifactId>
++                                        <versionRange>[3.0.0,)</versionRange>
++                                        <goals><goal>check</goal></goals>
++                                    </pluginExecutionFilter>
++                                    <action>
++                                        <ignore></ignore>
++                                    </action>
++                                </pluginExecution>
++                            </pluginExecutions>
++                        </lifecycleMappingMetadata>
++                    </configuration>
++                </plugin>
++            </plugins>
++        </pluginManagement>
+     </build>
+ 
+     <profiles>
+diff --git a/protocol/pom.xml b/protocol/pom.xml
+index dbc0a3ab..dd16e74e 100644
+--- a/protocol/pom.xml
++++ b/protocol/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-protocol</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -41,7 +40,7 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-chat</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+diff --git a/proxy/pom.xml b/proxy/pom.xml
+index c3a2eeb6..fe3a2197 100644
+--- a/proxy/pom.xml
++++ b/proxy/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-proxy</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -64,31 +63,31 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-api</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-log4j</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-native</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-protocol</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-query</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+diff --git a/query/pom.xml b/query/pom.xml
+index dea7d85f..55baf2e0 100644
+--- a/query/pom.xml
++++ b/query/pom.xml
+@@ -4,13 +4,12 @@
+     <modelVersion>4.0.0</modelVersion>
+ 
+     <parent>
+-        <groupId>io.github.waterfallmc</groupId>
++        <groupId>fr.pandacube.pandacord</groupId>
+         <artifactId>waterfall-parent</artifactId>
+         <version>1.17-R0.1-SNAPSHOT</version>
+         <relativePath>../pom.xml</relativePath>
+     </parent>
+ 
+-    <groupId>io.github.waterfallmc</groupId>
+     <artifactId>waterfall-query</artifactId>
+     <version>1.17-R0.1-SNAPSHOT</version>
+     <packaging>jar</packaging>
+@@ -26,7 +25,7 @@
+             <scope>compile</scope>
+         </dependency>
+         <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
++            <groupId>fr.pandacube.pandacord</groupId>
+             <artifactId>waterfall-api</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+-- 
+2.32.0.windows.2
+

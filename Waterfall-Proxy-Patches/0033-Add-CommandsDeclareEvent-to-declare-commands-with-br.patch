@@ -1,0 +1,1048 @@
+From 676b064e31a857821c9a08c6329a148b3739fff4 Mon Sep 17 00:00:00 2001
+From: Marc Baloup <marc.baloup@laposte.net>
+Date: Mon, 8 Jun 2020 00:51:21 +0200
+Subject: [PATCH] Add CommandsDeclareEvent to declare commands with brigadier
+ API
+
+
+diff --git a/api/src/main/java/net/md_5/bungee/api/event/CommandsDeclareEvent.java b/api/src/main/java/net/md_5/bungee/api/event/CommandsDeclareEvent.java
+new file mode 100644
+index 00000000..ab96dd9b
+--- /dev/null
++++ b/api/src/main/java/net/md_5/bungee/api/event/CommandsDeclareEvent.java
+@@ -0,0 +1,157 @@
++package net.md_5.bungee.api.event;
++
++import com.mojang.brigadier.arguments.ArgumentType;
++import com.mojang.brigadier.arguments.IntegerArgumentType;
++import com.mojang.brigadier.arguments.StringArgumentType;
++import com.mojang.brigadier.builder.ArgumentBuilder;
++import com.mojang.brigadier.builder.RequiredArgumentBuilder;
++import com.mojang.brigadier.suggestion.SuggestionProvider;
++import com.mojang.brigadier.tree.CommandNode;
++import com.mojang.brigadier.tree.RootCommandNode;
++import lombok.AccessLevel;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++import lombok.Setter;
++import lombok.ToString;
++import net.md_5.bungee.api.CommandSender;
++import net.md_5.bungee.api.connection.Connection;
++import net.md_5.bungee.api.plugin.Command;
++import net.md_5.bungee.api.plugin.Plugin;
++import net.md_5.bungee.api.plugin.PluginManager;
++import net.md_5.bungee.api.plugin.TabExecutor;
++
++/**
++ * Event called when a downstream server (on 1.13+) sends the command structure
++ * to a player, but before BungeeCord adds the dummy command nodes of
++ * registered commands.
++ * <p>
++ * BungeeCord will not overwrite the modifications made by the listeners.
++ *
++ * <h2>Usage example</h2>
++ * Here is a usage example of this event, to declare a command structure.
++ * This illustrates the commands /server and /send of Bungee.
++ * <pre>
++ * event.getRoot().addChild( LiteralArgumentBuilder.&lt;CommandSender&gt;literal( "server" )
++ *         .requires( sender -&gt; sender.hasPermission( "bungeecord.command.server" ) )
++ *         .executes( a -&gt; 0 )
++ *         .then( RequiredArgumentBuilder.argument( "serverName", StringArgumentType.greedyString() )
++ *                 .suggests( SuggestionRegistry.ASK_SERVER )
++ *         )
++ *         .build()
++ * );
++ * event.getRoot().addChild( LiteralArgumentBuilder.&lt;CommandSender&gt;literal( "send" )
++ *         .requires( sender -&gt; sender.hasPermission( "bungeecord.command.send" ) )
++ *         .then( RequiredArgumentBuilder.argument( "playerName", StringArgumentType.word() )
++ *                 .suggests( SuggestionRegistry.ASK_SERVER )
++ *                 .then( RequiredArgumentBuilder.argument( "serverName", StringArgumentType.greedyString() )
++ *                         .suggests( SuggestionRegistry.ASK_SERVER )
++ *                 )
++ *         )
++ *         .build()
++ * );
++ * </pre>
++ *
++ * <h2>Flag a {@link CommandNode} as executable or not</h2>
++ * The implementation of a {@link com.mojang.brigadier.Command Command} used in
++ * {@link ArgumentBuilder#executes(com.mojang.brigadier.Command)} will never be
++ * executed. This will only tell to the client if the current node is
++ * executable or not.
++ * <ul>
++ *     <li>
++ *         {@code builder.executes(null)} (default) to mark the node as not
++ *         executable.
++ *     </li>
++ *     <li>
++ *         {@code builder.executes(a -> 0)}, or any non null argument, to mark
++ *         the node as executable (the child arguments are displayed as
++ *         optional).
++ *     </li>
++ * </ul>
++ *
++ * <h2>{@link CommandNode}’s suggestions management</h2>
++ * The implementation of a SuggestionProvider used in
++ * {@link RequiredArgumentBuilder#suggests(SuggestionProvider)} will never be
++ * executed. This will only tell to the client how to deal with the
++ * auto-completion of the argument.
++ * <ul>
++ *     <li>
++ *         {@code builder.suggests(null)} (default) to disable auto-completion
++ *         for this argument.
++ *     </li>
++ *     <li>
++ *         {@code builder.suggests(SuggestionRegistry.ALL_RECIPES)} to suggest
++ *         Minecraft’s recipes.
++ *     </li>
++ *     <li>
++ *         {@code builder.suggests(SuggestionRegistry.AVAILABLE_SOUNDS)} to
++ *         suggest Minecraft’s default sound identifiers.
++ *     </li>
++ *     <li>
++ *         {@code builder.suggests(SuggestionRegistry.SUMMONABLE_ENTITIES)} to
++ *         suggest Minecraft’s default summonable entities identifiers.
++ *     </li>
++ *     <li>
++ *         {@code builder.suggests(SuggestionRegistry.ASK_SERVER)}, or any
++ *         other non null argument, to make the Minecraft client ask
++ *         auto-completion to the server. Any specified implementation of
++ *         {@link SuggestionProvider} will never be executed.
++ *     </li>
++ * </ul>
++ *
++ * <h2>Argument types</h2>
++ * When building a new argument command node using
++ * {@link RequiredArgumentBuilder#argument(String, ArgumentType)}, you have to
++ * specify an {@link ArgumentType}. You can use all subclasses of
++ * {@link ArgumentType} provided with brigadier (for instance,
++ * {@link StringArgumentType} or {@link IntegerArgumentType}), or call any
++ * {@code ArgumentRegistry.minecraft*()} methods to use a {@code minecraft:*}
++ * argument type.
++ *
++ * <h2>Limitations with brigadier API</h2>
++ * This event is only used for the client to show command syntax, suggest
++ * sub-commands and color the arguments in the chat box. The command execution
++ * needs to be implemented using {@link PluginManager#registerCommand(Plugin,
++ * Command)} and the server-side tab-completion using {@link TabCompleteEvent}
++ * or {@link TabExecutor}.
++ */
++@Data
++@ToString(callSuper = true)
++@EqualsAndHashCode(callSuper = true)
++public class CommandsDeclareEvent extends TargetedEvent
++{
++    /**
++     * Wether or not the command tree is modified by this event.
++     *
++     * If this value is set to true, BungeeCord will ensure that the
++     * modifications made in the command tree, will be sent to the player.
++     * If this is false, the modifications may not be taken into account.
++     *
++     * When calling {@link #getRoot()}, this value is automatically set
++     * to true.
++     */
++    @Setter(value = AccessLevel.NONE)
++    private boolean modified = false;
++
++    /**
++     * The root command node of the command structure that will be send to the
++     * player.
++     */
++    private final RootCommandNode<CommandSender> root;
++
++    public CommandsDeclareEvent(Connection sender, Connection receiver, RootCommandNode<CommandSender> root)
++    {
++        super( sender, receiver );
++        this.root = root;
++    }
++
++    /**
++     * The root command node of the command structure that will be send to the
++     * player.
++     * @return The root command node
++     */
++    public RootCommandNode<CommandSender> getRoot()
++    {
++        modified = true;
++        return root;
++    }
++}
+diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/packet/Commands.java b/protocol/src/main/java/net/md_5/bungee/protocol/packet/Commands.java
+index 26edbca8..323d479c 100644
+--- a/protocol/src/main/java/net/md_5/bungee/protocol/packet/Commands.java
++++ b/protocol/src/main/java/net/md_5/bungee/protocol/packet/Commands.java
+@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
+ import com.mojang.brigadier.Command;
+ import com.mojang.brigadier.StringReader;
+ import com.mojang.brigadier.arguments.ArgumentType;
++import com.mojang.brigadier.arguments.BoolArgumentType;
+ import com.mojang.brigadier.arguments.DoubleArgumentType;
+ import com.mojang.brigadier.arguments.FloatArgumentType;
+ import com.mojang.brigadier.arguments.IntegerArgumentType;
+@@ -36,6 +37,7 @@ import lombok.EqualsAndHashCode;
+ import lombok.NoArgsConstructor;
+ import net.md_5.bungee.protocol.AbstractPacketHandler;
+ import net.md_5.bungee.protocol.DefinedPacket;
++import net.md_5.bungee.protocol.ProtocolConstants;
+ 
+ @Data
+ @NoArgsConstructor
+@@ -126,7 +128,7 @@ public class Commands extends DefinedPacket
+     }
+ 
+     @Override
+-    public void write(ByteBuf buf)
++    public void write(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
+     {
+         Map<CommandNode, Integer> indexMap = new LinkedHashMap<>();
+         Deque<CommandNode> nodeQueue = new ArrayDeque<>();
+@@ -210,7 +212,7 @@ public class Commands extends DefinedPacket
+                 ArgumentCommandNode argumentNode = (ArgumentCommandNode) node;
+ 
+                 writeString( argumentNode.getName(), buf );
+-                ArgumentRegistry.write( argumentNode.getType(), buf );
++                ArgumentRegistry.write( argumentNode.getType(), buf, protocolVersion );
+ 
+                 if ( argumentNode.getCustomSuggestions() != null )
+                 {
+@@ -304,11 +306,12 @@ public class Commands extends DefinedPacket
+     }
+ 
+     @Data
+-    private static class ArgumentRegistry
++    public static class ArgumentRegistry
+     {
+ 
+         private static final Map<String, ArgumentSerializer> PROVIDERS = new HashMap<>();
+         private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
++        private static final Map<String, ProtocolConversionProvider> CONVERSION_PROVIDERS = new HashMap<>();
+         //
+         private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
+         {
+@@ -323,18 +326,23 @@ public class Commands extends DefinedPacket
+             {
+             }
+         };
+-        private static final ArgumentSerializer<Boolean> BOOLEAN = new ArgumentSerializer<Boolean>()
++        private static final ProperArgumentSerializer<BoolArgumentType> BOOLEAN = new ProperArgumentSerializer<BoolArgumentType>()
+         {
+             @Override
+-            protected Boolean read(ByteBuf buf)
++            protected BoolArgumentType read(ByteBuf buf)
+             {
+-                return buf.readBoolean();
++                return BoolArgumentType.bool();
+             }
+ 
+             @Override
+-            protected void write(ByteBuf buf, Boolean t)
++            protected void write(ByteBuf buf, BoolArgumentType t)
+             {
+-                buf.writeBoolean( t );
++            }
++
++            @Override
++            protected String getKey()
++            {
++                return "brigadier:bool";
+             }
+         };
+         private static final ArgumentSerializer<Byte> BYTE = new ArgumentSerializer<Byte>()
+@@ -351,7 +359,7 @@ public class Commands extends DefinedPacket
+                 buf.writeByte( t );
+             }
+         };
+-        private static final ArgumentSerializer<FloatArgumentType> FLOAT = new ArgumentSerializer<FloatArgumentType>()
++        private static final ProperArgumentSerializer<FloatArgumentType> FLOAT = new ProperArgumentSerializer<FloatArgumentType>()
+         {
+             @Override
+             protected FloatArgumentType read(ByteBuf buf)
+@@ -379,8 +387,14 @@ public class Commands extends DefinedPacket
+                     buf.writeFloat( t.getMaximum() );
+                 }
+             }
++
++            @Override
++            protected String getKey()
++            {
++                return "brigadier:float";
++            }
+         };
+-        private static final ArgumentSerializer<DoubleArgumentType> DOUBLE = new ArgumentSerializer<DoubleArgumentType>()
++        private static final ProperArgumentSerializer<DoubleArgumentType> DOUBLE = new ProperArgumentSerializer<DoubleArgumentType>()
+         {
+             @Override
+             protected DoubleArgumentType read(ByteBuf buf)
+@@ -408,8 +422,14 @@ public class Commands extends DefinedPacket
+                     buf.writeDouble( t.getMaximum() );
+                 }
+             }
++
++            @Override
++            protected String getKey()
++            {
++                return "brigadier:double";
++            }
+         };
+-        private static final ArgumentSerializer<IntegerArgumentType> INTEGER = new ArgumentSerializer<IntegerArgumentType>()
++        private static final ProperArgumentSerializer<IntegerArgumentType> INTEGER = new ProperArgumentSerializer<IntegerArgumentType>()
+         {
+             @Override
+             protected IntegerArgumentType read(ByteBuf buf)
+@@ -437,8 +457,14 @@ public class Commands extends DefinedPacket
+                     buf.writeInt( t.getMaximum() );
+                 }
+             }
++
++            @Override
++            protected String getKey()
++            {
++                return "brigadier:integer";
++            }
+         };
+-        private static final ArgumentSerializer<LongArgumentType> LONG = new ArgumentSerializer<LongArgumentType>()
++        private static final ProperArgumentSerializer<LongArgumentType> LONG = new ProperArgumentSerializer<LongArgumentType>()
+         {
+             @Override
+             protected LongArgumentType read(ByteBuf buf)
+@@ -466,6 +492,12 @@ public class Commands extends DefinedPacket
+                     buf.writeLong( t.getMaximum() );
+                 }
+             }
++
++            @Override
++            protected String getKey()
++            {
++                return "brigadier:long";
++            }
+         };
+         private static final ProperArgumentSerializer<StringArgumentType> STRING = new ProperArgumentSerializer<StringArgumentType>()
+         {
+@@ -501,11 +533,31 @@ public class Commands extends DefinedPacket
+ 
+         static
+         {
+-            PROVIDERS.put( "brigadier:bool", VOID );
++            PROVIDERS.put( "brigadier:bool", BOOLEAN );
++            PROPER_PROVIDERS.put( BoolArgumentType.class, BOOLEAN );
++
+             PROVIDERS.put( "brigadier:float", FLOAT );
++            PROPER_PROVIDERS.put( FloatArgumentType.class, FLOAT );
++
+             PROVIDERS.put( "brigadier:double", DOUBLE );
++            PROPER_PROVIDERS.put( DoubleArgumentType.class, DOUBLE );
++
+             PROVIDERS.put( "brigadier:integer", INTEGER );
+-            PROVIDERS.put( "brigadier:long", LONG );
++            PROPER_PROVIDERS.put( IntegerArgumentType.class, INTEGER );
++
++            PROVIDERS.put( "brigadier:long", LONG ); // 1.14+
++            PROPER_PROVIDERS.put( LongArgumentType.class, LONG );
++            CONVERSION_PROVIDERS.put( "brigadier:long", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
++                {
++                    LongArgumentType type = (LongArgumentType) originalType;
++                    int min = (int) Math.max( Integer.MIN_VALUE, Math.min( Integer.MAX_VALUE, type.getMinimum() ) );
++                    int max = (int) Math.max( Integer.MIN_VALUE, Math.min( Integer.MAX_VALUE, type.getMaximum() ) );
++                    return IntegerArgumentType.integer( min, max );
++                }
++                return originalType;
++            } );
+ 
+             PROVIDERS.put( "brigadier:string", STRING );
+             PROPER_PROVIDERS.put( StringArgumentType.class, STRING );
+@@ -523,9 +575,37 @@ public class Commands extends DefinedPacket
+             PROVIDERS.put( "minecraft:color", VOID );
+             PROVIDERS.put( "minecraft:component", VOID );
+             PROVIDERS.put( "minecraft:message", VOID );
+-            PROVIDERS.put( "minecraft:nbt_compound_tag", VOID ); // 1.14
+-            PROVIDERS.put( "minecraft:nbt_tag", VOID ); // 1.14
++
++            PROVIDERS.put( "minecraft:nbt_compound_tag", VOID ); // 1.14+, replaces minecraft:nbt
++            CONVERSION_PROVIDERS.put( "minecraft:nbt_compound_tag", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
++                {
++                    return minecraftNBT();
++                }
++                return originalType;
++            } );
++
++            PROVIDERS.put( "minecraft:nbt_tag", VOID ); // 1.14+
++            CONVERSION_PROVIDERS.put( "minecraft:nbt_tag", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
++                {
++                    return minecraftNBT();
++                }
++                return originalType;
++            } );
++
+             PROVIDERS.put( "minecraft:nbt", VOID ); // 1.13
++            CONVERSION_PROVIDERS.put( "minecraft:nbt", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_14 )
++                {
++                    return minecraftNBTCompoundTag();
++                }
++                return originalType;
++            } );
++
+             PROVIDERS.put( "minecraft:nbt_path", VOID );
+             PROVIDERS.put( "minecraft:objective", VOID );
+             PROVIDERS.put( "minecraft:objective_criteria", VOID );
+@@ -546,11 +626,416 @@ public class Commands extends DefinedPacket
+             PROVIDERS.put( "minecraft:item_enchantment", VOID );
+             PROVIDERS.put( "minecraft:entity_summon", VOID );
+             PROVIDERS.put( "minecraft:dimension", VOID );
+-            PROVIDERS.put( "minecraft:time", VOID ); // 1.14
+-            PROVIDERS.put( "minecraft:uuid", VOID ); // 1.16
+-            PROVIDERS.put( "minecraft:test_argument", VOID ); // 1.16, debug
+-            PROVIDERS.put( "minecraft:test_class", VOID ); // 1.16, debug
+-            PROVIDERS.put( "minecraft:angle", VOID ); // 1.16.2
++
++            PROVIDERS.put( "minecraft:time", VOID ); // 1.14+
++            CONVERSION_PROVIDERS.put( "minecraft:time", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_14 )
++                {
++                    return StringArgumentType.word();
++                }
++                return originalType;
++            } );
++
++            PROVIDERS.put( "minecraft:uuid", VOID ); // 1.16+
++            CONVERSION_PROVIDERS.put( "minecraft:uuid", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_16 )
++                {
++                    return StringArgumentType.word();
++                }
++                return originalType;
++            } );
++
++            PROVIDERS.put( "minecraft:test_argument", VOID ); // 1.16+, debug
++            PROVIDERS.put( "minecraft:test_class", VOID ); // 1.16+, debug
++            PROVIDERS.put( "minecraft:angle", VOID ); // 1.16.2+
++            CONVERSION_PROVIDERS.put( "minecraft:angle", ( originalType, protocolVersion ) ->
++            {
++                if ( protocolVersion < ProtocolConstants.MINECRAFT_1_16_2 )
++                {
++                    return FloatArgumentType.floatArg();
++                }
++                return originalType;
++            } );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:entity}.
++         * @param singleEntity if the argument restrict to only one entity
++         * @param onlyPlayers if the argument restrict to players only
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftEntity(boolean singleEntity, boolean onlyPlayers)
++        {
++            byte flags = 0;
++            if ( singleEntity )
++            {
++                flags |= 1;
++            }
++            if ( onlyPlayers )
++            {
++                flags |= 2;
++            }
++
++            return minecraftArgumentType( "minecraft:entity", flags );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:game_profile}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftGameProfile()
++        {
++            return minecraftArgumentType( "minecraft:game_profile", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:block_pos}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftBlockPos()
++        {
++            return minecraftArgumentType( "minecraft:block_pos", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:column_pos}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftColumnPos()
++        {
++            return minecraftArgumentType( "minecraft:column_pos", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:vec3}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftVec3()
++        {
++            return minecraftArgumentType( "minecraft:vec3", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:vec2}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftVec2()
++        {
++            return minecraftArgumentType( "minecraft:vec2", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:block_state}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftBlockState()
++        {
++            return minecraftArgumentType( "minecraft:block_state", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:block_predicate}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftBlockPredicate()
++        {
++            return minecraftArgumentType( "minecraft:block_predicate", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:item_stack}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftItemStack()
++        {
++            return minecraftArgumentType( "minecraft:item_stack", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:item_predicate}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftItemPredicate()
++        {
++            return minecraftArgumentType( "minecraft:item_predicate", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:color}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftColor()
++        {
++            return minecraftArgumentType( "minecraft:color", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:component}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftComponent()
++        {
++            return minecraftArgumentType( "minecraft:component", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:message}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftMessage()
++        {
++            return minecraftArgumentType( "minecraft:message", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:nbt_compound_tag}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftNBTCompoundTag()
++        {
++            return minecraftArgumentType( "minecraft:nbt_compound_tag", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:nbt_tag}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftNBTTag()
++        {
++            return minecraftArgumentType( "minecraft:nbt_tag", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:nbt}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftNBT()
++        {
++            return minecraftArgumentType( "minecraft:nbt", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:nbt_path}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftNBTPath()
++        {
++            return minecraftArgumentType( "minecraft:nbt_path", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:objective}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftObjective()
++        {
++            return minecraftArgumentType( "minecraft:objective", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:objective_criteria}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftObjectiveCriteria()
++        {
++            return minecraftArgumentType( "minecraft:objective_criteria", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:operation}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftOperation()
++        {
++            return minecraftArgumentType( "minecraft:operation", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:particle}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftParticle()
++        {
++            return minecraftArgumentType( "minecraft:particle", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:rotation}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftRotation()
++        {
++            return minecraftArgumentType( "minecraft:rotation", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:scoreboard_slot}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftScoreboardSlot()
++        {
++            return minecraftArgumentType( "minecraft:scoreboard_slot", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:score_holder}.
++         * @param allowMultiple if the argument allows multiple entities
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftScoreHolder(boolean allowMultiple)
++        {
++            byte flags = 0;
++            if ( allowMultiple )
++            {
++                flags |= 1;
++            }
++
++            return minecraftArgumentType( "minecraft:score_holder", flags );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:swizzle}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftSwizzle()
++        {
++            return minecraftArgumentType( "minecraft:swizzle", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:team}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftTeam()
++        {
++            return minecraftArgumentType( "minecraft:team", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:item_slot}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftItemSlot()
++        {
++            return minecraftArgumentType( "minecraft:item_slot", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:resource_location}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftResourceLocation()
++        {
++            return minecraftArgumentType( "minecraft:resource_location", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:mob_effect}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftMobEffect()
++        {
++            return minecraftArgumentType( "minecraft:mob_effect", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:function}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftFunction()
++        {
++            return minecraftArgumentType( "minecraft:function", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:entity_anchor}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftEntityAnchor()
++        {
++            return minecraftArgumentType( "minecraft:entity_anchor", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:int_range}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftIntRange()
++        {
++            return minecraftArgumentType( "minecraft:int_range", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:float_range}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftFloatRange()
++        {
++            return minecraftArgumentType( "minecraft:float_range", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:item_enchantment}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftItemEnchantment()
++        {
++            return minecraftArgumentType( "minecraft:item_enchantment", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:entity_summon}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftEntitySummon()
++        {
++            return minecraftArgumentType( "minecraft:entity_summon", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:dimension}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftDimension()
++        {
++            return minecraftArgumentType( "minecraft:dimension", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:time}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftTime()
++        {
++            return minecraftArgumentType( "minecraft:time", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:uuid}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftUUID()
++        {
++            return minecraftArgumentType( "minecraft:uuid", null );
++        }
++
++        /**
++         * Returns the Minecraft ArgumentType {@code minecraft:angle}.
++         * @return an ArgumentType instance
++         */
++        public static ArgumentType<?> minecraftAngle()
++        {
++            return minecraftArgumentType( "minecraft:angle", null );
++        }
++
++        private static ArgumentType<?> minecraftArgumentType(String key, Object rawValue)
++        {
++            ArgumentSerializer reader = PROVIDERS.get( key );
++            Preconditions.checkArgument( reader != null, "No provider for argument " + key );
++
++            return new DummyType( key, reader, rawValue );
+         }
+ 
+         private static ArgumentType<?> read(String key, ByteBuf buf)
+@@ -562,8 +1047,10 @@ public class Commands extends DefinedPacket
+             return val != null && PROPER_PROVIDERS.containsKey( val.getClass() ) ? (ArgumentType<?>) val : new DummyType( key, reader, val );
+         }
+ 
+-        private static void write(ArgumentType<?> arg, ByteBuf buf)
++        private static void write(ArgumentType<?> arg, ByteBuf buf, int protocolVersion)
+         {
++            arg = convertToVersion( arg, protocolVersion );
++
+             ProperArgumentSerializer proper = PROPER_PROVIDERS.get( arg.getClass() );
+             if ( proper != null )
+             {
+@@ -579,6 +1066,34 @@ public class Commands extends DefinedPacket
+             }
+         }
+ 
++        // Convert the provided argument type to a new one compatible with the provided protocol version
++        private static ArgumentType<?> convertToVersion(ArgumentType<?> arg, int protocolVersion)
++        {
++            ProperArgumentSerializer proper = PROPER_PROVIDERS.get( arg.getClass() );
++            String key;
++            if ( proper != null )
++            {
++                key = proper.getKey();
++            } else
++            {
++                Preconditions.checkArgument( arg instanceof DummyType, "Non dummy arg " + arg.getClass() );
++                key = ( (DummyType) arg ).key;
++            }
++
++            ProtocolConversionProvider converter = CONVERSION_PROVIDERS.get( key );
++
++            if ( converter != null )
++            {
++                return converter.convert( arg, protocolVersion );
++            }
++            return arg;
++        }
++
++        private interface ProtocolConversionProvider
++        {
++            public ArgumentType<?> convert(ArgumentType<?> originalType, int protocolVersion);
++        }
++
+         @Data
+         private static class DummyType<T> implements ArgumentType<T>
+         {
+@@ -612,17 +1127,39 @@ public class Commands extends DefinedPacket
+     @Data
+     public static class SuggestionRegistry
+     {
+-
++        /**
++         * Tells the client to ask suggestions to the server.
++         */
+         public static final SuggestionProvider ASK_SERVER = new DummyProvider( "minecraft:ask_server" );
++
++        /**
++         * Tells the client to suggest all the available recipes. The suggestions are stored client side.
++         */
++        public static final SuggestionProvider ALL_RECIPES = new DummyProvider( "minecraft:all_recipes" );
++
++        /**
++         * Tells the client to suggest all the available sounds. The suggestions are stored client side.
++         */
++        public static final SuggestionProvider AVAILABLE_SOUNDS = new DummyProvider( "minecraft:available_sounds" );
++
++        /**
++         * Tells the client to suggest all the available biomes. The suggestions are stored client side.
++         */
++        public static final SuggestionProvider AVAILABLE_BIOMES = new DummyProvider( "minecraft:available_biomes" );
++
++        /**
++         * Tells the client to suggest all the available entities. The suggestions are stored client side.
++         */
++        public static final SuggestionProvider SUMMONABLE_ENTITIES = new DummyProvider( "minecraft:summonable_entities" );
+         private static final Map<String, SuggestionProvider<DummyProvider>> PROVIDERS = new HashMap<>();
+ 
+         static
+         {
+             PROVIDERS.put( "minecraft:ask_server", ASK_SERVER );
+-            registerDummy( "minecraft:all_recipes" );
+-            registerDummy( "minecraft:available_sounds" );
+-            registerDummy( "minecraft:available_biomes" );
+-            registerDummy( "minecraft:summonable_entities" );
++            PROVIDERS.put( "minecraft:all_recipes", ALL_RECIPES );
++            PROVIDERS.put( "minecraft:available_sounds", AVAILABLE_SOUNDS );
++            PROVIDERS.put( "minecraft:available_biomes", AVAILABLE_BIOMES );
++            PROVIDERS.put( "minecraft:summonable_entities", SUMMONABLE_ENTITIES );
+         }
+ 
+         private static void registerDummy(String name)
+@@ -640,9 +1177,13 @@ public class Commands extends DefinedPacket
+ 
+         private static String getKey(SuggestionProvider<DummyProvider> provider)
+         {
+-            Preconditions.checkArgument( provider instanceof DummyProvider, "Non dummy provider " + provider );
++            Preconditions.checkNotNull( provider );
++            if ( provider instanceof DummyProvider )
++            {
++                return ( (DummyProvider) provider ).key;
++            }
+ 
+-            return ( (DummyProvider) provider ).key;
++            return ( (DummyProvider) ASK_SERVER ).key;
+         }
+ 
+         @Data
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index 72538ddb..4379a6c5 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -6,12 +6,15 @@ import com.google.common.collect.Lists;
+ import com.google.common.io.ByteArrayDataOutput;
+ import com.google.common.io.ByteStreams;
+ import com.mojang.brigadier.arguments.StringArgumentType;
++import com.mojang.brigadier.builder.ArgumentBuilder;
+ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+ import com.mojang.brigadier.context.StringRange;
+ import com.mojang.brigadier.suggestion.Suggestion;
+ import com.mojang.brigadier.suggestion.Suggestions;
++import com.mojang.brigadier.tree.CommandNode;
+ import com.mojang.brigadier.tree.LiteralCommandNode;
++import com.mojang.brigadier.tree.RootCommandNode;
+ 
+ import io.github.waterfallmc.waterfall.event.ProxyDefineCommandsEvent; // Waterfall
+ import io.netty.buffer.ByteBuf;
+@@ -21,10 +24,13 @@ import io.netty.channel.unix.DomainSocketAddress;
+ import java.io.DataInput;
+ import java.net.InetSocketAddress;
+ import java.util.ArrayList;
++import java.util.Collection;
+ import java.util.HashMap; // Waterfall
++import java.util.IdentityHashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Objects; // Waterfall
++import java.util.logging.Level;
+ import lombok.RequiredArgsConstructor;
+ import net.md_5.bungee.ServerConnection;
+ import net.md_5.bungee.ServerConnection.KeepAliveData;
+@@ -35,6 +41,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
+ import net.md_5.bungee.api.chat.TextComponent;
+ import net.md_5.bungee.api.config.ServerInfo;
+ import net.md_5.bungee.api.connection.ProxiedPlayer;
++import net.md_5.bungee.api.event.CommandsDeclareEvent;
+ import net.md_5.bungee.api.event.PluginMessageEvent;
+ import net.md_5.bungee.api.event.ServerConnectEvent;
+ import net.md_5.bungee.api.event.ServerDisconnectEvent;
+@@ -689,6 +696,11 @@ public class DownstreamBridge extends PacketHandler
+     {
+         boolean modified = false;
+ 
++        CommandsDeclareEvent commandsDeclareEvent = new CommandsDeclareEvent( server, con, commands.getRoot() );
++        bungee.getPluginManager().callEvent( commandsDeclareEvent );
++
++        modified = commandsDeclareEvent.isModified();
++
+         // Waterfall start
+         Map<String, Command> commandMap = new HashMap<>();
+         for ( Map.Entry<String, Command> commandEntry : bungee.getPluginManager().getCommands() ) {
+@@ -721,11 +733,65 @@ public class DownstreamBridge extends PacketHandler
+ 
+         if ( modified )
+         {
++            commands.setRoot( (RootCommandNode) filterCommandNode( commands.getRoot(), new IdentityHashMap<>() ) );
+             con.unsafe().sendPacket( commands );
+             throw CancelSendSignal.INSTANCE;
+         }
+     }
+ 
++    /*
++     * Create a deep copy of the provided command node but removes any node that are not accessible by the player
++     * (using {@link CommandNode#getRequirement()})
++     */
++    private CommandNode filterCommandNode(CommandNode source, IdentityHashMap<CommandNode, CommandNode> commandNodeMapping)
++    {
++        CommandNode dest;
++        if ( source instanceof RootCommandNode )
++        {
++            dest = new RootCommandNode();
++        } else
++        {
++            if ( source.getRequirement() != null )
++            {
++                try
++                {
++                    if ( !source.getRequirement().test( con ) )
++                    {
++                        commandNodeMapping.put( source, null );
++                        return null;
++                    }
++                } catch ( Throwable t )
++                {
++                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "Requirement test for command node " + source + " encountered an exception", t );
++                }
++            }
++
++            ArgumentBuilder destChildBuilder = source.createBuilder();
++            destChildBuilder.requires( sender -> true );
++            if ( destChildBuilder.getRedirect() != null )
++            {
++                if ( commandNodeMapping.containsKey( destChildBuilder.getRedirect() ) )
++                    destChildBuilder.redirect( commandNodeMapping.get( destChildBuilder.getRedirect() ) );
++                else
++                    destChildBuilder.redirect( filterCommandNode( destChildBuilder.getRedirect(), commandNodeMapping ) );
++            }
++
++            dest = destChildBuilder.build();
++        }
++
++        commandNodeMapping.put( source, dest );
++
++        for ( CommandNode sourceChild : (Collection<CommandNode>) source.getChildren() )
++        {
++            CommandNode destChild = filterCommandNode( sourceChild, commandNodeMapping );
++            if ( destChild == null )
++                continue;
++            dest.addChild( destChild );
++        }
++
++        return dest;
++    }
++
+     @Override
+     public String toString()
+     {
+-- 
+2.32.0.windows.2
+

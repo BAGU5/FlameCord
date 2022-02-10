@@ -1,0 +1,43 @@
+From e814af4ff1a9b377eb2642d4d317407072f373de Mon Sep 17 00:00:00 2001
+From: Marc Baloup <marc.baloup@laposte.net>
+Date: Tue, 29 Oct 2019 23:43:32 +0100
+Subject: [PATCH] Inproved proxy and server branding (displayed in F3)
+
+
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index cffe7a8d..51207270 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -51,6 +51,7 @@ import java.util.logging.Logger;
+ import lombok.Getter;
+ import lombok.Setter;
+ import lombok.Synchronized;
++import net.md_5.bungee.api.ChatColor;
+ import net.md_5.bungee.api.CommandSender;
+ import net.md_5.bungee.api.Favicon;
+ import net.md_5.bungee.api.ProxyServer;
+@@ -533,7 +534,7 @@ public class BungeeCord extends ProxyServer
+     @Override
+     public String getName()
+     {
+-        return "Waterfall";
++        return ChatColor.BLUE + "TBconnector" + ChatColor.RESET;
+     }
+ 
+     @Override
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+index 9e180c30..72538ddb 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
+@@ -293,7 +293,7 @@ public class DownstreamBridge extends PacketHandler
+             Preconditions.checkState( !serverBrand.contains( bungee.getName() ), "Cannot connect proxy to itself!" );
+ 
+             brand = ByteBufAllocator.DEFAULT.heapBuffer();
+-            DefinedPacket.writeString( bungee.getName() + " <- " + serverBrand, brand ); // Waterfall
++            DefinedPacket.writeString( bungee.getName() + " <- " + server.getInfo().getName() + " (" + serverBrand + ")", brand ); // Waterfall
+             pluginMessage.setData( brand );
+             brand.release();
+             // changes in the packet are ignored so we need to send it manually
+-- 
+2.32.0.windows.2
+

@@ -1,0 +1,194 @@
+From 999d7c782e22b1b1ac3bd614e8120c4b9d6d64cb Mon Sep 17 00:00:00 2001
+From: Marc Baloup <marc.baloup@laposte.net>
+Date: Sun, 21 Jun 2020 21:49:31 +0200
+Subject: [PATCH] new event TabCompleteRequestEvent and deprecate
+ TabCompleteEvent
+
+
+diff --git a/api/src/main/java/net/md_5/bungee/api/event/TabCompleteEvent.java b/api/src/main/java/net/md_5/bungee/api/event/TabCompleteEvent.java
+index 2fcd8616..63031f7b 100644
+--- a/api/src/main/java/net/md_5/bungee/api/event/TabCompleteEvent.java
++++ b/api/src/main/java/net/md_5/bungee/api/event/TabCompleteEvent.java
+@@ -9,7 +9,9 @@ import net.md_5.bungee.api.plugin.Cancellable;
+ 
+ /**
+  * Event called when a player uses tab completion.
++ * @deprecated please use {@link TabCompleteRequestEvent} to support 1.13+ suggestions.
+  */
++@Deprecated
+ @Data
+ @ToString(callSuper = true)
+ @EqualsAndHashCode(callSuper = true)
+diff --git a/api/src/main/java/net/md_5/bungee/api/event/TabCompleteRequestEvent.java b/api/src/main/java/net/md_5/bungee/api/event/TabCompleteRequestEvent.java
+new file mode 100644
+index 00000000..0093ae69
+--- /dev/null
++++ b/api/src/main/java/net/md_5/bungee/api/event/TabCompleteRequestEvent.java
+@@ -0,0 +1,85 @@
++package net.md_5.bungee.api.event;
++
++import com.google.common.base.Preconditions;
++import com.mojang.brigadier.context.StringRange;
++import com.mojang.brigadier.suggestion.Suggestions;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++import lombok.ToString;
++import net.md_5.bungee.api.connection.Connection;
++import net.md_5.bungee.api.connection.ProxiedPlayer;
++import net.md_5.bungee.api.plugin.Cancellable;
++import net.md_5.bungee.protocol.ProtocolConstants;
++
++/**
++ * Event called when a player uses tab completion.
++ */
++@Data
++@ToString(callSuper = true)
++@EqualsAndHashCode(callSuper = true)
++public class TabCompleteRequestEvent extends TargetedEvent implements Cancellable
++{
++
++    /**
++     * Cancelled state.
++     */
++    private boolean cancelled;
++    /**
++     * The message the player has already entered.
++     */
++    private final String cursor;
++    /**
++     * Range corresponding to the last word of {@link #getCursor()}.
++     * If you want your suggestions to be compatible with 1.12 and older
++     * clients, you need to {@link #setSuggestions(Suggestions)} with
++     * a range equals to this one.
++     * For 1.13 and newer clients, any other range that cover any part of
++     * {@link #getCursor()} is fine.<br>
++     * To check if the client supports custom ranges, use
++     * {@link #supportsCustomRange()}.
++     */
++    private final StringRange legacyCompatibleRange;
++    /**
++     * The suggestions that will be sent to the client. If this list is empty,
++     * the request will be forwarded to the server.
++     */
++    private Suggestions suggestions;
++
++    public TabCompleteRequestEvent(Connection sender, Connection receiver, String cursor, StringRange legacyCompatibleRange, Suggestions suggestions)
++    {
++        super( sender, receiver );
++        this.cursor = cursor;
++        this.legacyCompatibleRange = legacyCompatibleRange;
++        this.suggestions = suggestions;
++    }
++
++    /**
++     * Sets the suggestions that will be sent to the client.
++     * If this list is empty, the request will be forwarded to the server.
++     * @param suggestions the new Suggestions. Cannot be null.
++     * @throws IllegalArgumentException if the client is on 1.12 or lower and
++     * {@code suggestions.getRange()} is not equals to {@link #legacyCompatibleRange}.
++     */
++    public void setSuggestions(Suggestions suggestions)
++    {
++        Preconditions.checkNotNull( suggestions );
++        Preconditions.checkArgument( supportsCustomRange() || legacyCompatibleRange.equals( suggestions.getRange() ),
++                "Clients on 1.12 or lower versions don't support the provided range for tab-completion: " + suggestions.getRange()
++                + ". Please use TabCompleteRequestEvent.getLegacyCompatibleRange() for legacy clients." );
++        this.suggestions = suggestions;
++    }
++
++    /**
++     * Convenient method to tell if the client supports custom range for
++     * suggestions.
++     * If the client is on 1.13 or above, this methods returns true, and any
++     * range can be used for {@link #setSuggestions(Suggestions)}. Otherwise,
++     * it returns false and the defined range must be equals to
++     * {@link #legacyCompatibleRange}.
++     * @return true if the client is on 1.13 or newer version, false otherwise.
++     */
++    public boolean supportsCustomRange()
++    {
++        return ( (ProxiedPlayer) getSender() ).getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13;
++    }
++}
+diff --git a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+index d93d8851..bbb1ae91 100644
+--- a/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
++++ b/proxy/src/main/java/net/md_5/bungee/connection/UpstreamBridge.java
+@@ -6,7 +6,6 @@ import com.mojang.brigadier.suggestion.Suggestion;
+ import com.mojang.brigadier.suggestion.Suggestions;
+ import io.netty.channel.Channel;
+ import java.util.ArrayList;
+-import java.util.LinkedList;
+ import java.util.List;
+ import net.md_5.bungee.BungeeCord;
+ import net.md_5.bungee.ServerConnection.KeepAliveData;
+@@ -19,6 +18,7 @@ import net.md_5.bungee.api.event.PlayerDisconnectEvent;
+ import net.md_5.bungee.api.event.PluginMessageEvent;
+ import net.md_5.bungee.api.event.SettingsChangedEvent;
+ import net.md_5.bungee.api.event.TabCompleteEvent;
++import net.md_5.bungee.api.event.TabCompleteRequestEvent;
+ import net.md_5.bungee.entitymap.EntityMap;
+ import net.md_5.bungee.forge.ForgeConstants;
+ import net.md_5.bungee.netty.ChannelWrapper;
+@@ -200,32 +200,42 @@ public class UpstreamBridge extends PacketHandler
+         TabCompleteEvent tabCompleteEvent = new TabCompleteEvent( con, con.getServer(), tabComplete.getCursor(), suggestions );
+         bungee.getPluginManager().callEvent( tabCompleteEvent );
+ 
+-        if ( tabCompleteEvent.isCancelled() )
++        List<String> legacyResults = tabCompleteEvent.getSuggestions();
++
++        int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
++        int end = tabComplete.getCursor().length();
++        StringRange lastArgumentRange = StringRange.between( start, end );
++
++        List<Suggestion> brigadier = new ArrayList<>( legacyResults.size() );
++        for ( String s : legacyResults )
++        {
++            brigadier.add( new Suggestion( lastArgumentRange, s ) );
++        }
++
++        TabCompleteRequestEvent tabCompleteRequestEvent = new TabCompleteRequestEvent( con, con.getServer(), tabComplete.getCursor(), lastArgumentRange, new Suggestions( lastArgumentRange, brigadier ) );
++        tabCompleteRequestEvent.setCancelled( tabCompleteEvent.isCancelled() );
++        bungee.getPluginManager().callEvent( tabCompleteRequestEvent );
++
++        if ( tabCompleteRequestEvent.isCancelled() )
+         {
+             throw CancelSendSignal.INSTANCE;
+         }
+ 
+-        List<String> results = tabCompleteEvent.getSuggestions();
+-        if ( !results.isEmpty() )
++        Suggestions brigadierResults = tabCompleteRequestEvent.getSuggestions();
++
++        if ( !brigadierResults.isEmpty() )
+         {
+-            // Unclear how to handle 1.13 commands at this point. Because we don't inject into the command packets we are unlikely to get this far unless
+-            // Bungee plugins are adding results for commands they don't own anyway
+             if ( con.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_13 )
+             {
++                List<String> results = new ArrayList<>( brigadierResults.getList().size() );
++                for ( Suggestion s : brigadierResults.getList() )
++                {
++                    results.add( s.getText() );
++                }
+                 con.unsafe().sendPacket( new TabCompleteResponse( results ) );
+             } else
+             {
+-                int start = tabComplete.getCursor().lastIndexOf( ' ' ) + 1;
+-                int end = tabComplete.getCursor().length();
+-                StringRange range = StringRange.between( start, end );
+-
+-                List<Suggestion> brigadier = new LinkedList<>();
+-                for ( String s : results )
+-                {
+-                    brigadier.add( new Suggestion( range, s ) );
+-                }
+-
+-                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), new Suggestions( range, brigadier ) ) );
++                con.unsafe().sendPacket( new TabCompleteResponse( tabComplete.getTransactionId(), brigadierResults ) );
+             }
+             throw CancelSendSignal.INSTANCE;
+         }
+-- 
+2.32.0.windows.2
+

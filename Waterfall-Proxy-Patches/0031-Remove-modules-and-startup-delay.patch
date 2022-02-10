@@ -1,0 +1,1630 @@
+From 23d6ba913bc063129277f8711027d1a209b67148 Mon Sep 17 00:00:00 2001
+From: Marc Baloup <marc.baloup@laposte.net>
+Date: Wed, 23 Nov 2016 12:47:23 +0100
+Subject: [PATCH] Remove modules and startup delay
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We don’t need them for Pandacube
+
+diff --git a/module/cmd-alert/nb-configuration.xml b/module/cmd-alert/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/cmd-alert/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/cmd-alert/pom.xml b/module/cmd-alert/pom.xml
+deleted file mode 100644
+index 11e990d9..00000000
+--- a/module/cmd-alert/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-cmd-alert</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>cmd_alert</name>
+-    <description>Provides the alert and alertraw commands</description>
+-</project>
+diff --git a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlert.java b/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlert.java
+deleted file mode 100644
+index 55d2f7b8..00000000
+--- a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlert.java
++++ /dev/null
+@@ -1,46 +0,0 @@
+-package net.md_5.bungee.module.cmd.alert;
+-
+-import net.md_5.bungee.api.ChatColor;
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.chat.TextComponent;
+-import net.md_5.bungee.api.plugin.Command;
+-
+-public class CommandAlert extends Command
+-{
+-
+-    public CommandAlert()
+-    {
+-        super( "alert", "bungeecord.command.alert" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        if ( args.length == 0 )
+-        {
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "message_needed" ) );
+-        } else
+-        {
+-            StringBuilder builder = new StringBuilder();
+-            if ( args[0].startsWith( "&h" ) )
+-            {
+-                // Remove &h
+-                args[0] = args[0].substring( 2, args[0].length() );
+-            } else
+-            {
+-                builder.append( ProxyServer.getInstance().getTranslation( "alert" ) );
+-            }
+-
+-            for ( String s : args )
+-            {
+-                builder.append( ChatColor.translateAlternateColorCodes( '&', s ) );
+-                builder.append( " " );
+-            }
+-
+-            String message = builder.substring( 0, builder.length() - 1 );
+-
+-            ProxyServer.getInstance().broadcast( TextComponent.fromLegacyText( message ) );
+-        }
+-    }
+-}
+diff --git a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlertRaw.java b/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlertRaw.java
+deleted file mode 100644
+index 7292899d..00000000
+--- a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/CommandAlertRaw.java
++++ /dev/null
+@@ -1,56 +0,0 @@
+-package net.md_5.bungee.module.cmd.alert;
+-
+-import com.google.common.base.Joiner;
+-import net.md_5.bungee.api.ChatColor;
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.chat.ComponentBuilder;
+-import net.md_5.bungee.api.chat.HoverEvent;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.api.plugin.Command;
+-import net.md_5.bungee.chat.ComponentSerializer;
+-
+-public class CommandAlertRaw extends Command
+-{
+-
+-    public CommandAlertRaw()
+-    {
+-        super( "alertraw", "bungeecord.command.alert" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        if ( args.length == 0 )
+-        {
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "message_needed" ) );
+-        } else
+-        {
+-            String message = Joiner.on( ' ' ).join( args );
+-
+-            try
+-            {
+-                ProxyServer.getInstance().broadcast( ComponentSerializer.parse( message ) );
+-            } catch ( Exception e )
+-            {
+-                Throwable error = e;
+-                while ( error.getCause() != null )
+-                {
+-                    error = error.getCause();
+-                }
+-                if ( sender instanceof ProxiedPlayer )
+-                {
+-                    sender.sendMessage( new ComponentBuilder( ProxyServer.getInstance().getTranslation( "error_occurred_player" ) )
+-                            .event( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder( error.getMessage() )
+-                                    .color( ChatColor.RED )
+-                                    .create() ) )
+-                            .create()
+-                    );
+-                } else
+-                {
+-                    sender.sendMessage( ProxyServer.getInstance().getTranslation( "error_occurred_console", error.getMessage() ) );
+-                }
+-            }
+-        }
+-    }
+-}
+diff --git a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/PluginAlert.java b/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/PluginAlert.java
+deleted file mode 100644
+index b6f84865..00000000
+--- a/module/cmd-alert/src/main/java/net/md_5/bungee/module/cmd/alert/PluginAlert.java
++++ /dev/null
+@@ -1,14 +0,0 @@
+-package net.md_5.bungee.module.cmd.alert;
+-
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginAlert extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        getProxy().getPluginManager().registerCommand( this, new CommandAlert() );
+-        getProxy().getPluginManager().registerCommand( this, new CommandAlertRaw() );
+-    }
+-}
+diff --git a/module/cmd-alert/src/main/resources/plugin.yml b/module/cmd-alert/src/main/resources/plugin.yml
+deleted file mode 100644
+index 8ed58084..00000000
+--- a/module/cmd-alert/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.cmd.alert.PluginAlert
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/module/cmd-find/nb-configuration.xml b/module/cmd-find/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/cmd-find/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/cmd-find/pom.xml b/module/cmd-find/pom.xml
+deleted file mode 100644
+index b732d67f..00000000
+--- a/module/cmd-find/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-cmd-find</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>cmd_find</name>
+-    <description>Provides the find command</description>
+-</project>
+diff --git a/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/CommandFind.java b/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/CommandFind.java
+deleted file mode 100644
+index 7ea239ac..00000000
+--- a/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/CommandFind.java
++++ /dev/null
+@@ -1,34 +0,0 @@
+-package net.md_5.bungee.module.cmd.find;
+-
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.command.PlayerCommand;
+-
+-public class CommandFind extends PlayerCommand
+-{
+-
+-    public CommandFind()
+-    {
+-        super( "find", "bungeecord.command.find" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        if ( args.length != 1 )
+-        {
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "username_needed" ) );
+-        } else
+-        {
+-            ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+-            if ( player == null || player.getServer() == null )
+-            {
+-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
+-            } else
+-            {
+-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_online_at", player.getName(), player.getServer().getInfo().getName() ) );
+-            }
+-        }
+-    }
+-}
+diff --git a/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/PluginFind.java b/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/PluginFind.java
+deleted file mode 100644
+index 63757214..00000000
+--- a/module/cmd-find/src/main/java/net/md_5/bungee/module/cmd/find/PluginFind.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package net.md_5.bungee.module.cmd.find;
+-
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginFind extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        getProxy().getPluginManager().registerCommand( this, new CommandFind() );
+-    }
+-}
+diff --git a/module/cmd-find/src/main/resources/plugin.yml b/module/cmd-find/src/main/resources/plugin.yml
+deleted file mode 100644
+index e0f346f9..00000000
+--- a/module/cmd-find/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.cmd.find.PluginFind
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/module/cmd-list/nb-configuration.xml b/module/cmd-list/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/cmd-list/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/cmd-list/pom.xml b/module/cmd-list/pom.xml
+deleted file mode 100644
+index d17cb787..00000000
+--- a/module/cmd-list/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-cmd-list</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>cmd_list</name>
+-    <description>Provides the glist command</description>
+-</project>
+diff --git a/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/CommandList.java b/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/CommandList.java
+deleted file mode 100644
+index c2227110..00000000
+--- a/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/CommandList.java
++++ /dev/null
+@@ -1,47 +0,0 @@
+-package net.md_5.bungee.module.cmd.list;
+-
+-import java.util.ArrayList;
+-import java.util.Collections;
+-import java.util.List;
+-import net.md_5.bungee.Util;
+-import net.md_5.bungee.api.ChatColor;
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.config.ServerInfo;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.api.plugin.Command;
+-
+-/**
+- * Command to list all players connected to the proxy.
+- */
+-public class CommandList extends Command
+-{
+-
+-    public CommandList()
+-    {
+-        super( "glist", "bungeecord.command.list" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
+-        {
+-            if ( !server.canAccess( sender ) )
+-            {
+-                continue;
+-            }
+-
+-            List<String> players = new ArrayList<>();
+-            for ( ProxiedPlayer player : server.getPlayers() )
+-            {
+-                players.add( player.getDisplayName() );
+-            }
+-            Collections.sort( players, String.CASE_INSENSITIVE_ORDER );
+-
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "command_list", server.getName(), server.getPlayers().size(), Util.format( players, ChatColor.RESET + ", " ) ) );
+-        }
+-
+-        sender.sendMessage( ProxyServer.getInstance().getTranslation( "total_players", ProxyServer.getInstance().getOnlineCount() ) );
+-    }
+-}
+diff --git a/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/PluginList.java b/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/PluginList.java
+deleted file mode 100644
+index e2a196c1..00000000
+--- a/module/cmd-list/src/main/java/net/md_5/bungee/module/cmd/list/PluginList.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package net.md_5.bungee.module.cmd.list;
+-
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginList extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        getProxy().getPluginManager().registerCommand( this, new CommandList() );
+-    }
+-}
+diff --git a/module/cmd-list/src/main/resources/plugin.yml b/module/cmd-list/src/main/resources/plugin.yml
+deleted file mode 100644
+index 272e64eb..00000000
+--- a/module/cmd-list/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.cmd.list.PluginList
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/module/cmd-send/nb-configuration.xml b/module/cmd-send/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/cmd-send/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/cmd-send/pom.xml b/module/cmd-send/pom.xml
+deleted file mode 100644
+index d1972708..00000000
+--- a/module/cmd-send/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-cmd-send</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>cmd_send</name>
+-    <description>Provides the gsend command</description>
+-</project>
+diff --git a/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/CommandSend.java b/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/CommandSend.java
+deleted file mode 100644
+index f59f9457..00000000
+--- a/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/CommandSend.java
++++ /dev/null
+@@ -1,200 +0,0 @@
+-package net.md_5.bungee.module.cmd.send;
+-
+-import com.google.common.base.Joiner;
+-import com.google.common.collect.ImmutableSet;
+-import java.util.ArrayList;
+-import java.util.Collections;
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.List;
+-import java.util.Locale;
+-import java.util.Map;
+-import java.util.Set;
+-import net.md_5.bungee.api.Callback;
+-import net.md_5.bungee.api.ChatColor;
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.ServerConnectRequest;
+-import net.md_5.bungee.api.chat.ComponentBuilder;
+-import net.md_5.bungee.api.chat.HoverEvent;
+-import net.md_5.bungee.api.config.ServerInfo;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.api.event.ServerConnectEvent;
+-import net.md_5.bungee.api.plugin.Command;
+-import net.md_5.bungee.api.plugin.TabExecutor;
+-
+-public class CommandSend extends Command implements TabExecutor
+-{
+-
+-    protected static class SendCallback
+-    {
+-
+-        private final Map<ServerConnectRequest.Result, List<String>> results = new HashMap<>();
+-        private final CommandSender sender;
+-        private int count = 0;
+-
+-        public SendCallback(CommandSender sender)
+-        {
+-            this.sender = sender;
+-            for ( ServerConnectRequest.Result result : ServerConnectRequest.Result.values() )
+-            {
+-                results.put( result, new ArrayList<String>() );
+-            }
+-        }
+-
+-        public void lastEntryDone()
+-        {
+-            sender.sendMessage( ChatColor.GREEN.toString() + ChatColor.BOLD + "Send Results:" );
+-            for ( Map.Entry<ServerConnectRequest.Result, List<String>> entry : results.entrySet() )
+-            {
+-                ComponentBuilder builder = new ComponentBuilder( "" );
+-                if ( !entry.getValue().isEmpty() )
+-                {
+-                    builder.event( new HoverEvent( HoverEvent.Action.SHOW_TEXT,
+-                            new ComponentBuilder( Joiner.on( ", " ).join( entry.getValue() ) ).color( ChatColor.YELLOW ).create() ) );
+-                }
+-                builder.append( entry.getKey().name() + ": " ).color( ChatColor.GREEN );
+-                builder.append( "" + entry.getValue().size() ).bold( true );
+-                sender.sendMessage( builder.create() );
+-            }
+-        }
+-
+-        public static class Entry implements Callback<ServerConnectRequest.Result>
+-        {
+-
+-            private final SendCallback callback;
+-            private final ProxiedPlayer player;
+-            private final ServerInfo target;
+-
+-            public Entry(SendCallback callback, ProxiedPlayer player, ServerInfo target)
+-            {
+-                this.callback = callback;
+-                this.player = player;
+-                this.target = target;
+-                this.callback.count++;
+-            }
+-
+-            @Override
+-            public void done(ServerConnectRequest.Result result, Throwable error)
+-            {
+-                callback.results.get( result ).add( player.getName() );
+-                if ( result == ServerConnectRequest.Result.SUCCESS )
+-                {
+-                    player.sendMessage( ProxyServer.getInstance().getTranslation( "you_got_summoned", target.getName(), callback.sender.getName() ) );
+-                }
+-
+-                if ( --callback.count == 0 )
+-                {
+-                    callback.lastEntryDone();
+-                }
+-            }
+-        }
+-    }
+-
+-    public CommandSend()
+-    {
+-        super( "send", "bungeecord.command.send" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        if ( args.length != 2 )
+-        {
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "send_cmd_usage" ) );
+-            return;
+-        }
+-        ServerInfo server = ProxyServer.getInstance().getServerInfo( args[1] );
+-        if ( server == null )
+-        {
+-            sender.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+-            return;
+-        }
+-
+-        List<ProxiedPlayer> targets;
+-        if ( args[0].equalsIgnoreCase( "all" ) )
+-        {
+-            targets = new ArrayList<>( ProxyServer.getInstance().getPlayers() );
+-        } else if ( args[0].equalsIgnoreCase( "current" ) )
+-        {
+-            if ( !( sender instanceof ProxiedPlayer ) )
+-            {
+-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "player_only" ) );
+-                return;
+-            }
+-            ProxiedPlayer player = (ProxiedPlayer) sender;
+-            targets = new ArrayList<>( player.getServer().getInfo().getPlayers() );
+-        } else
+-        {
+-            // If we use a server name, send the entire server. This takes priority over players.
+-            ServerInfo serverTarget = ProxyServer.getInstance().getServerInfo( args[0] );
+-            if ( serverTarget != null )
+-            {
+-                targets = new ArrayList<>( serverTarget.getPlayers() );
+-            } else
+-            {
+-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer( args[0] );
+-                if ( player == null )
+-                {
+-                    sender.sendMessage( ProxyServer.getInstance().getTranslation( "user_not_online" ) );
+-                    return;
+-                }
+-                targets = Collections.singletonList( player );
+-            }
+-        }
+-
+-        final SendCallback callback = new SendCallback( sender );
+-        for ( ProxiedPlayer player : targets )
+-        {
+-            ServerConnectRequest request = ServerConnectRequest.builder()
+-                    .target( server )
+-                    .reason( ServerConnectEvent.Reason.COMMAND )
+-                    .callback( new SendCallback.Entry( callback, player, server ) )
+-                    .build();
+-            player.connect( request );
+-        }
+-
+-        sender.sendMessage( ChatColor.DARK_GREEN + "Attempting to send " + targets.size() + " players to " + server.getName() );
+-    }
+-
+-    @Override
+-    public Iterable<String> onTabComplete(CommandSender sender, String[] args)
+-    {
+-        if ( args.length > 2 || args.length == 0 )
+-        {
+-            return ImmutableSet.of();
+-        }
+-
+-        Set<String> matches = new HashSet<>();
+-        if ( args.length == 1 )
+-        {
+-            String search = args[0].toLowerCase( Locale.ROOT );
+-            for ( ProxiedPlayer player : ProxyServer.getInstance().getPlayers() )
+-            {
+-                if ( player.getName().toLowerCase( Locale.ROOT ).startsWith( search ) )
+-                {
+-                    matches.add( player.getName() );
+-                }
+-            }
+-            if ( "all".startsWith( search ) )
+-            {
+-                matches.add( "all" );
+-            }
+-            if ( "current".startsWith( search ) )
+-            {
+-                matches.add( "current" );
+-            }
+-        } else
+-        {
+-            String search = args[1].toLowerCase( Locale.ROOT );
+-            for ( String server : ProxyServer.getInstance().getServers().keySet() )
+-            {
+-                if ( server.toLowerCase( Locale.ROOT ).startsWith( search ) )
+-                {
+-                    matches.add( server );
+-                }
+-            }
+-        }
+-        return matches;
+-    }
+-}
+diff --git a/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/PluginSend.java b/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/PluginSend.java
+deleted file mode 100644
+index 4d4cf822..00000000
+--- a/module/cmd-send/src/main/java/net/md_5/bungee/module/cmd/send/PluginSend.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package net.md_5.bungee.module.cmd.send;
+-
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginSend extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        getProxy().getPluginManager().registerCommand( this, new CommandSend() );
+-    }
+-}
+diff --git a/module/cmd-send/src/main/resources/plugin.yml b/module/cmd-send/src/main/resources/plugin.yml
+deleted file mode 100644
+index a613e78b..00000000
+--- a/module/cmd-send/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.cmd.send.PluginSend
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/module/cmd-server/nb-configuration.xml b/module/cmd-server/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/cmd-server/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/cmd-server/pom.xml b/module/cmd-server/pom.xml
+deleted file mode 100644
+index 3b2c4952..00000000
+--- a/module/cmd-server/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-cmd-server</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>cmd_server</name>
+-    <description>Provides the server command</description>
+-</project>
+diff --git a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java b/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
+deleted file mode 100644
+index 698b420f..00000000
+--- a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/CommandServer.java
++++ /dev/null
+@@ -1,104 +0,0 @@
+-package net.md_5.bungee.module.cmd.server;
+-
+-import com.google.common.base.Function;
+-import com.google.common.base.Predicate;
+-import com.google.common.collect.Iterables;
+-import java.util.Collections;
+-import java.util.Locale;
+-import java.util.Map;
+-import net.md_5.bungee.api.CommandSender;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.chat.ClickEvent;
+-import net.md_5.bungee.api.chat.ComponentBuilder;
+-import net.md_5.bungee.api.chat.HoverEvent;
+-import net.md_5.bungee.api.chat.TextComponent;
+-import net.md_5.bungee.api.config.ServerInfo;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.api.event.ServerConnectEvent;
+-import net.md_5.bungee.api.plugin.Command;
+-import net.md_5.bungee.api.plugin.TabExecutor;
+-
+-/**
+- * Command to list and switch a player between available servers.
+- */
+-public class CommandServer extends Command implements TabExecutor
+-{
+-
+-    public CommandServer()
+-    {
+-        super( "server", "bungeecord.command.server" );
+-    }
+-
+-    @Override
+-    public void execute(CommandSender sender, String[] args)
+-    {
+-        Map<String, ServerInfo> servers = ProxyServer.getInstance().getServers();
+-        if ( args.length == 0 )
+-        {
+-            if ( sender instanceof ProxiedPlayer )
+-            {
+-                sender.sendMessage( ProxyServer.getInstance().getTranslation( "current_server", ( (ProxiedPlayer) sender ).getServer().getInfo().getName() ) );
+-            }
+-
+-            ComponentBuilder serverList = new ComponentBuilder().appendLegacy( ProxyServer.getInstance().getTranslation( "server_list" ) );
+-            boolean first = true;
+-            for ( ServerInfo server : servers.values() )
+-            {
+-                if ( server.canAccess( sender ) )
+-                {
+-                    TextComponent serverTextComponent = new TextComponent( first ? server.getName() : ", " + server.getName() );
+-                    int count = server.getPlayers().size();
+-                    serverTextComponent.setHoverEvent( new HoverEvent(
+-                            HoverEvent.Action.SHOW_TEXT,
+-                            new ComponentBuilder( count + ( count == 1 ? " player" : " players" ) + "\n" ).appendLegacy( ProxyServer.getInstance().getTranslation( "click_to_connect" ) ).create() )
+-                    );
+-                    serverTextComponent.setClickEvent( new ClickEvent( ClickEvent.Action.RUN_COMMAND, "/server " + server.getName() ) );
+-                    serverList.append( serverTextComponent );
+-                    first = false;
+-                }
+-            }
+-            sender.sendMessage( serverList.create() );
+-        } else
+-        {
+-            if ( !( sender instanceof ProxiedPlayer ) )
+-            {
+-                return;
+-            }
+-            ProxiedPlayer player = (ProxiedPlayer) sender;
+-
+-            ServerInfo server = servers.get( args[0] );
+-            if ( server == null )
+-            {
+-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server" ) );
+-            } else if ( !server.canAccess( player ) )
+-            {
+-                player.sendMessage( ProxyServer.getInstance().getTranslation( "no_server_permission" ) );
+-            } else
+-            {
+-                player.connect( server, ServerConnectEvent.Reason.COMMAND );
+-            }
+-        }
+-    }
+-
+-    @Override
+-    public Iterable<String> onTabComplete(final CommandSender sender, final String[] args)
+-    {
+-        return ( args.length > 1 ) ? Collections.EMPTY_LIST : Iterables.transform( Iterables.filter( ProxyServer.getInstance().getServersCopy().values(), new Predicate<ServerInfo>() // Waterfall: use #getServersCopy()
+-        {
+-            private final String lower = ( args.length == 0 ) ? "" : args[0].toLowerCase( Locale.ROOT );
+-
+-            @Override
+-            public boolean apply(ServerInfo input)
+-            {
+-                return input.getName().toLowerCase( Locale.ROOT ).startsWith( lower ) && input.canAccess( sender );
+-            }
+-        } ), new Function<ServerInfo, String>()
+-        {
+-            @Override
+-            public String apply(ServerInfo input)
+-            {
+-                return input.getName();
+-            }
+-        } );
+-    }
+-}
+diff --git a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/PluginServer.java b/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/PluginServer.java
+deleted file mode 100644
+index 4aaae7ec..00000000
+--- a/module/cmd-server/src/main/java/net/md_5/bungee/module/cmd/server/PluginServer.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package net.md_5.bungee.module.cmd.server;
+-
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginServer extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        getProxy().getPluginManager().registerCommand( this, new CommandServer() );
+-    }
+-}
+diff --git a/module/cmd-server/src/main/resources/plugin.yml b/module/cmd-server/src/main/resources/plugin.yml
+deleted file mode 100644
+index 006f3e3f..00000000
+--- a/module/cmd-server/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.cmd.server.PluginServer
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/module/pom.xml b/module/pom.xml
+deleted file mode 100644
+index 0ef98d58..00000000
+--- a/module/pom.xml
++++ /dev/null
+@@ -1,54 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-parent</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>pom</packaging>
+-
+-    <name>Waterfall Modules</name>
+-    <description>Parent project for all Waterfall modules.</description>
+-
+-    <modules>
+-        <module>cmd-alert</module>
+-        <module>cmd-find</module>
+-        <module>cmd-list</module>
+-        <module>cmd-send</module>
+-        <module>cmd-server</module>
+-        <module>reconnect-yaml</module>
+-    </modules>
+-
+-    <properties>
+-        <module.author>WaterfallMC</module.author>
+-        <maven.deploy.skip>true</maven.deploy.skip>
+-        <maven.javadoc.skip>true</maven.javadoc.skip>
+-    </properties>
+-
+-    <dependencies>
+-        <dependency>
+-            <groupId>io.github.waterfallmc</groupId>
+-            <artifactId>waterfall-api</artifactId>
+-            <version>${project.version}</version>
+-            <scope>compile</scope>
+-        </dependency>
+-    </dependencies>
+-
+-    <build>
+-        <finalName>${project.name}</finalName>
+-        <resources>
+-            <resource>
+-                <filtering>true</filtering>
+-                <directory>${basedir}/src/main/resources</directory>
+-            </resource>
+-        </resources>
+-    </build>
+-</project>
+diff --git a/module/reconnect-yaml/nb-configuration.xml b/module/reconnect-yaml/nb-configuration.xml
+deleted file mode 100644
+index 7e465924..00000000
+--- a/module/reconnect-yaml/nb-configuration.xml
++++ /dev/null
+@@ -1,31 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project-shared-configuration>
+-    <!--
+-    This file contains additional configuration written by modules in the NetBeans IDE.
+-    The configuration is intended to be shared among all the users of project and
+-    therefore it is assumed to be part of version control checkout.
+-    Without this configuration present, some functionality in the IDE may be limited or fail altogether.
+-    -->
+-    <properties xmlns="http://www.netbeans.org/ns/maven-properties-data/1">
+-        <!--
+-        Properties that influence various parts of the IDE, especially code formatting and the like. 
+-        You can copy and paste the single properties, into the pom.xml file and the IDE will pick them up.
+-        That way multiple projects can share the same settings (useful for formatting rules for example).
+-        Any value defined here will override the pom.xml file value but is only applicable to the current project.
+-        -->
+-        <org-netbeans-modules-editor-indent.CodeStyle.usedProfile>project</org-netbeans-modules-editor-indent.CodeStyle.usedProfile>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.classDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.otherBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>NEW_LINE</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.methodDeclBracePlacement>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinMethodCallParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSwitchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinCatchParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinTryParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinSynchronizedParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinArrayInitBrackets>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinWhileParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinIfParens>
+-        <org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>true</org-netbeans-modules-editor-indent.text.x-java.CodeStyle.project.spaceWithinForParens>
+-    </properties>
+-</project-shared-configuration>
+diff --git a/module/reconnect-yaml/pom.xml b/module/reconnect-yaml/pom.xml
+deleted file mode 100644
+index b88398cf..00000000
+--- a/module/reconnect-yaml/pom.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-
+-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+-    <modelVersion>4.0.0</modelVersion>
+-
+-    <parent>
+-        <groupId>io.github.waterfallmc</groupId>
+-        <artifactId>waterfall-module</artifactId>
+-        <version>1.17-R0.1-SNAPSHOT</version>
+-        <relativePath>../pom.xml</relativePath>
+-    </parent>
+-
+-    <groupId>io.github.waterfallmc</groupId>
+-    <artifactId>waterfall-module-reconnect-yaml</artifactId>
+-    <version>1.17-R0.1-SNAPSHOT</version>
+-    <packaging>jar</packaging>
+-
+-    <name>reconnect_yaml</name>
+-    <description>Provides reconnect location functionality in locations.yml</description>
+-</project>
+diff --git a/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/PluginYaml.java b/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/PluginYaml.java
+deleted file mode 100644
+index 0d77ce2a..00000000
+--- a/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/PluginYaml.java
++++ /dev/null
+@@ -1,22 +0,0 @@
+-package net.md_5.bungee.module.reconnect.yaml;
+-
+-import net.md_5.bungee.api.config.ListenerInfo;
+-import net.md_5.bungee.api.plugin.Plugin;
+-
+-public class PluginYaml extends Plugin
+-{
+-
+-    @Override
+-    public void onEnable()
+-    {
+-        // TODO: Abstract this for other reconnect modules
+-        for ( ListenerInfo info : getProxy().getConfig().getListeners() )
+-        {
+-            if ( !info.isForceDefault() && getProxy().getReconnectHandler() == null )
+-            {
+-                getProxy().setReconnectHandler( new YamlReconnectHandler() );
+-                break;
+-            }
+-        }
+-    }
+-}
+diff --git a/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/YamlReconnectHandler.java b/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/YamlReconnectHandler.java
+deleted file mode 100644
+index 3a514a76..00000000
+--- a/module/reconnect-yaml/src/main/java/net/md_5/bungee/module/reconnect/yaml/YamlReconnectHandler.java
++++ /dev/null
+@@ -1,115 +0,0 @@
+-package net.md_5.bungee.module.reconnect.yaml;
+-
+-import java.io.File;
+-import java.io.FileReader;
+-import java.io.FileWriter;
+-import java.io.IOException;
+-import java.net.InetSocketAddress;
+-import java.util.HashMap;
+-import java.util.Map;
+-import java.util.concurrent.locks.ReadWriteLock;
+-import java.util.concurrent.locks.ReentrantReadWriteLock;
+-import java.util.logging.Level;
+-import net.md_5.bungee.api.AbstractReconnectHandler;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.config.ServerInfo;
+-import net.md_5.bungee.api.connection.ProxiedPlayer;
+-import net.md_5.bungee.util.CaseInsensitiveMap;
+-import org.yaml.snakeyaml.Yaml;
+-
+-public class YamlReconnectHandler extends AbstractReconnectHandler
+-{
+-
+-    private final Yaml yaml = new Yaml();
+-    private final File file = new File( "locations.yml" );
+-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+-    /*========================================================================*/
+-    private CaseInsensitiveMap<String> data;
+-
+-    @SuppressWarnings("unchecked")
+-    public YamlReconnectHandler()
+-    {
+-        try
+-        {
+-            file.createNewFile();
+-            try ( FileReader rd = new FileReader( file ) )
+-            {
+-                Map map = yaml.loadAs( rd, Map.class );
+-                if ( map != null )
+-                {
+-                    data = new CaseInsensitiveMap<>( map );
+-                }
+-            }
+-        } catch ( Exception ex )
+-        {
+-            file.renameTo( new File( "locations.yml.old" ) );
+-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not load reconnect locations, resetting them" );
+-        }
+-
+-        if ( data == null )
+-        {
+-            data = new CaseInsensitiveMap<>();
+-        }
+-    }
+-
+-    @Override
+-    protected ServerInfo getStoredServer(ProxiedPlayer player)
+-    {
+-        ServerInfo server = null;
+-        lock.readLock().lock();
+-        try
+-        {
+-            server = ProxyServer.getInstance().getServerInfo( data.get( key( player ) ) );
+-        } finally
+-        {
+-            lock.readLock().unlock();
+-        }
+-        return server;
+-    }
+-
+-    @Override
+-    public void setServer(ProxiedPlayer player)
+-    {
+-        lock.writeLock().lock();
+-        try
+-        {
+-            data.put( key( player ), ( player.getReconnectServer() != null ) ? player.getReconnectServer().getName() : player.getServer().getInfo().getName() );
+-        } finally
+-        {
+-            lock.writeLock().unlock();
+-        }
+-    }
+-
+-    private String key(ProxiedPlayer player)
+-    {
+-        InetSocketAddress host = player.getPendingConnection().getVirtualHost();
+-        return player.getName() + ";" + host.getHostString() + ":" + host.getPort();
+-    }
+-
+-    @Override
+-    public void save()
+-    {
+-        Map<String, String> copy = new HashMap<>();
+-        lock.readLock().lock();
+-        try
+-        {
+-            copy.putAll( data );
+-        } finally
+-        {
+-            lock.readLock().unlock();
+-        }
+-
+-        try ( FileWriter wr = new FileWriter( file ) )
+-        {
+-            yaml.dump( copy, wr );
+-        } catch ( IOException ex )
+-        {
+-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not save reconnect locations", ex );
+-        }
+-    }
+-
+-    @Override
+-    public void close()
+-    {
+-    }
+-}
+diff --git a/module/reconnect-yaml/src/main/resources/plugin.yml b/module/reconnect-yaml/src/main/resources/plugin.yml
+deleted file mode 100644
+index 451e3c61..00000000
+--- a/module/reconnect-yaml/src/main/resources/plugin.yml
++++ /dev/null
+@@ -1,5 +0,0 @@
+-name: ${project.name}
+-main: net.md_5.bungee.module.reconnect.yaml.PluginYaml
+-version: ${describe}
+-description: ${project.description}
+-author: ${module.author}
+diff --git a/pom.xml b/pom.xml
+index 5b701203..fd94fb4b 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -50,7 +50,6 @@
+         <module>event</module>
+         <module>log</module>
+         <module>log4j</module>
+-        <module>module</module>
+         <module>protocol</module>
+         <module>proxy</module>
+         <module>query</module>
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+index 07d74c67..cffe7a8d 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCord.java
+@@ -85,7 +85,6 @@ import net.md_5.bungee.compress.CompressFactory;
+ import net.md_5.bungee.conf.Configuration;
+ import net.md_5.bungee.conf.YamlConfig;
+ import net.md_5.bungee.forge.ForgeConstants;
+-import net.md_5.bungee.module.ModuleManager;
+ import net.md_5.bungee.netty.PipelineUtils;
+ import net.md_5.bungee.protocol.DefinedPacket;
+ import net.md_5.bungee.protocol.ProtocolConstants;
+@@ -172,7 +171,6 @@ public class BungeeCord extends ProxyServer
+             .registerTypeAdapter( Favicon.class, Favicon.getFaviconTypeAdapter() ).create();
+     @Getter
+     private ConnectionThrottle connectionThrottle;
+-    private final ModuleManager moduleManager = new ModuleManager();
+ 
+     {
+         // TODO: Proper fallback when we interface the manager
+@@ -268,10 +266,6 @@ public class BungeeCord extends ProxyServer
+         bossEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Boss IO Thread #%1$d" ).build() );
+         workerEventLoopGroup = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty Worker IO Thread #%1$d" ).build() );
+ 
+-        File moduleDirectory = new File( "modules" );
+-        moduleManager.load( this, moduleDirectory );
+-        pluginManager.detectPlugins( moduleDirectory );
+-
+         pluginsFolder.mkdir();
+         pluginManager.detectPlugins( pluginsFolder );
+ 
+diff --git a/proxy/src/main/java/net/md_5/bungee/BungeeCordLauncher.java b/proxy/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
+index 0db3d76a..0603df48 100644
+--- a/proxy/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
++++ b/proxy/src/main/java/net/md_5/bungee/BungeeCordLauncher.java
+@@ -51,6 +51,7 @@ public class BungeeCordLauncher
+ 
+             Calendar deadline = Calendar.getInstance();
+             deadline.add( Calendar.WEEK_OF_YEAR, -8 );
++            /* PandaCord - we are dealing with that differently
+             if ( buildDate.before( deadline.getTime() ) )
+             {
+                 System.err.println( "*** Hey! This build is potentially outdated :( ***" );
+@@ -59,6 +60,7 @@ public class BungeeCordLauncher
+                 System.err.println( "*** Server will start in 10 seconds ***" );
+                 Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
+             }
++            */
+         }
+ 
+         BungeeCord bungee = new BungeeCord();
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/JenkinsModuleSource.java b/proxy/src/main/java/net/md_5/bungee/module/JenkinsModuleSource.java
+deleted file mode 100644
+index 338c30d3..00000000
+--- a/proxy/src/main/java/net/md_5/bungee/module/JenkinsModuleSource.java
++++ /dev/null
+@@ -1,42 +0,0 @@
+-package net.md_5.bungee.module;
+-
+-import java.io.IOException;
+-import java.net.URL;
+-import java.net.URLConnection;
+-import java.nio.file.Files;
+-import java.nio.file.StandardCopyOption;
+-import lombok.Data;
+-import net.md_5.bungee.Util;
+-
+-@Data
+-public class JenkinsModuleSource implements ModuleSource
+-{
+-
+-    @Override
+-    public void retrieve(ModuleSpec module, ModuleVersion version)
+-    {
+-        System.out.println( "Attempting to Jenkins download module " + module.getName() + " v" + version.getBuild() );
+-        try
+-        {
+-            final String url = String.format(
+-                "https://papermc.io/api/v2/projects/%1$s/versions/%2$s/builds/%3$s/downloads/%4$s-%2$s-%3$s.jar",
+-                "waterfall",
+-                net.md_5.bungee.api.ProxyServer.getInstance().getVersion().split(":")[2].split("-")[0],
+-                version.getBuild(),
+-                module.getName()
+-            );
+-            URL website = new URL( url );
+-            URLConnection con = website.openConnection();
+-            // 15 second timeout at various stages
+-            con.setConnectTimeout( 15000 );
+-            con.setReadTimeout( 15000 );
+-            con.setRequestProperty( "User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36" );
+-
+-            Files.copy( con.getInputStream(), module.getFile().toPath(), StandardCopyOption.REPLACE_EXISTING );
+-            System.out.println( "Download complete" );
+-        } catch ( IOException ex )
+-        {
+-            System.out.println( "Failed to download: " + Util.exception( ex ) );
+-        }
+-    }
+-}
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
+deleted file mode 100644
+index d3abee44..00000000
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleManager.java
++++ /dev/null
+@@ -1,155 +0,0 @@
+-package net.md_5.bungee.module;
+-
+-import com.google.common.base.Preconditions;
+-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+-import java.io.File;
+-import java.io.FileInputStream;
+-import java.io.FileWriter;
+-import java.io.InputStream;
+-import java.net.URI;
+-import java.util.ArrayList;
+-import java.util.Collection;
+-import java.util.HashMap;
+-import java.util.List;
+-import java.util.Map;
+-import java.util.jar.JarEntry;
+-import java.util.jar.JarFile;
+-import java.util.logging.Level;
+-import net.md_5.bungee.api.ProxyServer;
+-import net.md_5.bungee.api.plugin.PluginDescription;
+-import net.md_5.bungee.util.CaseInsensitiveMap;
+-import org.yaml.snakeyaml.DumperOptions;
+-import org.yaml.snakeyaml.Yaml;
+-
+-public class ModuleManager
+-{
+-
+-    private final Map<String, ModuleSource> knownSources = new HashMap<>();
+-
+-    public ModuleManager()
+-    {
+-        knownSources.put( "jenkins", new JenkinsModuleSource() );
+-    }
+-
+-    // CHECKSTYLE:OFF
+-    @SuppressFBWarnings(
+-            {
+-                "SF_SWITCH_FALLTHROUGH", "SF_SWITCH_NO_DEFAULT"
+-            })
+-    // CHECKSTYLE:ON
+-    public void load(ProxyServer proxy, File moduleDirectory) throws Exception
+-    {
+-        moduleDirectory.mkdir();
+-
+-        ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
+-        if ( bungeeVersion == null )
+-        {
+-            proxy.getLogger().warning( "Couldn't detect bungee version. Custom build?" ); // Waterfall - Use logger
+-            return;
+-        }
+-
+-        List<ModuleSpec> modules = new ArrayList<>();
+-        File configFile = new File( "modules.yml" );
+-        // Start Yaml
+-        DumperOptions options = new DumperOptions();
+-        options.setDefaultFlowStyle( DumperOptions.FlowStyle.BLOCK );
+-        Yaml yaml = new Yaml( options );
+-
+-        Map<String, Object> config;
+-
+-        configFile.createNewFile();
+-        try ( InputStream is = new FileInputStream( configFile ) )
+-        {
+-            config = (Map) yaml.load( is );
+-        }
+-
+-        if ( config == null )
+-        {
+-            config = new CaseInsensitiveMap<>();
+-        } else
+-        {
+-            config = new CaseInsensitiveMap<>( config );
+-        }
+-        // End yaml
+-
+-        List<String> defaults = new ArrayList<>();
+-        Object readModules = config.get( "modules" );
+-        if ( readModules != null )
+-        {
+-            defaults.addAll( (Collection) readModules );
+-        }
+-        int version = ( config.containsKey( "version" ) ) ? (int) config.get( "version" ) : 0;
+-        switch ( version )
+-        {
+-            case 0:
+-                defaults.add( "jenkins://cmd_alert" );
+-                defaults.add( "jenkins://cmd_find" );
+-                defaults.add( "jenkins://cmd_list" );
+-                defaults.add( "jenkins://cmd_send" );
+-                defaults.add( "jenkins://cmd_server" );
+-            case 1:
+-                defaults.add( "jenkins://reconnect_yaml" );
+-        }
+-        config.put( "modules", defaults );
+-        config.put( "version", 2 );
+-
+-        try ( FileWriter wr = new FileWriter( configFile ) )
+-        {
+-            yaml.dump( config, wr );
+-        }
+-
+-        for ( String s : (List<String>) config.get( "modules" ) )
+-        {
+-            URI uri = new URI( s );
+-
+-            ModuleSource source = knownSources.get( uri.getScheme() );
+-            if ( source == null )
+-            {
+-                System.out.println( "Unknown module source: " + s );
+-                continue;
+-            }
+-            String name = uri.getAuthority();
+-            if ( name == null )
+-            {
+-                System.out.println( "Unknown module host: " + s );
+-                continue;
+-            }
+-
+-            ModuleSpec spec = new ModuleSpec( name, new File( moduleDirectory, name + ".jar" ), source );
+-            modules.add( spec );
+-            System.out.println( "Discovered module: " + spec );
+-        }
+-
+-        for ( ModuleSpec module : modules )
+-        {
+-            ModuleVersion moduleVersion = ( module.getFile().exists() ) ? getVersion( module.getFile() ) : null;
+-
+-            if ( !bungeeVersion.equals( moduleVersion ) )
+-            {
+-                System.out.println( "Attempting to update plugin from " + moduleVersion + " to " + bungeeVersion );
+-                module.getProvider().retrieve( module, bungeeVersion );
+-            }
+-        }
+-    }
+-
+-    @SuppressFBWarnings("REC_CATCH_EXCEPTION")
+-    private ModuleVersion getVersion(File file)
+-    {
+-        try ( JarFile jar = new JarFile( file ) )
+-        {
+-            JarEntry pdf = jar.getJarEntry( "plugin.yml" );
+-            Preconditions.checkNotNull( pdf, "Plugin must have a plugin.yml" );
+-
+-            try ( InputStream in = jar.getInputStream( pdf ) )
+-            {
+-                PluginDescription desc = new Yaml().loadAs( in, PluginDescription.class );
+-                return ModuleVersion.parse( desc.getVersion() );
+-            }
+-        } catch ( Exception ex )
+-        {
+-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Could not check module from file " + file, ex );
+-        }
+-
+-        return null;
+-    }
+-}
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleSource.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleSource.java
+deleted file mode 100644
+index 09f5624c..00000000
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleSource.java
++++ /dev/null
+@@ -1,7 +0,0 @@
+-package net.md_5.bungee.module;
+-
+-interface ModuleSource
+-{
+-
+-    void retrieve(ModuleSpec module, ModuleVersion version);
+-}
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleSpec.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleSpec.java
+deleted file mode 100644
+index ebf6cf67..00000000
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleSpec.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package net.md_5.bungee.module;
+-
+-import java.io.File;
+-import lombok.Data;
+-
+-@Data
+-public class ModuleSpec
+-{
+-
+-    private final String name;
+-    private final File file;
+-    private final ModuleSource provider;
+-}
+diff --git a/proxy/src/main/java/net/md_5/bungee/module/ModuleVersion.java b/proxy/src/main/java/net/md_5/bungee/module/ModuleVersion.java
+deleted file mode 100644
+index d52b8106..00000000
+--- a/proxy/src/main/java/net/md_5/bungee/module/ModuleVersion.java
++++ /dev/null
+@@ -1,35 +0,0 @@
+-package net.md_5.bungee.module;
+-
+-import lombok.AccessLevel;
+-import lombok.Data;
+-import lombok.RequiredArgsConstructor;
+-
+-@Data
+-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+-public class ModuleVersion
+-{
+-
+-    private final String build;
+-    private final String git;
+-
+-    public static ModuleVersion parse(String version)
+-    {
+-        int lastColon = version.lastIndexOf( ':' );
+-        int secondLastColon = version.lastIndexOf( ':', lastColon - 1 );
+-
+-        if ( lastColon == -1 || secondLastColon == -1 )
+-        {
+-            return null;
+-        }
+-
+-        String buildNumber = version.substring( lastColon + 1, version.length() );
+-        String gitCommit = version.substring( secondLastColon + 1, lastColon ).replaceAll( "\"", "" );
+-
+-        if ( "unknown".equals( buildNumber ) || "unknown".equals( gitCommit ) )
+-        {
+-            return null;
+-        }
+-
+-        return new ModuleVersion( buildNumber, gitCommit );
+-    }
+-}
+-- 
+2.32.0.windows.2
+
