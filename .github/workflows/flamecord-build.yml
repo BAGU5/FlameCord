@@ -1,50 +1,30 @@
-# This workflow will perform a compilation test on 
-# each push to the branch master to check its correct 
-# compilation and will deliver an artifact to check 
-# if the change is working properly.
-name: FlameCord Maven Build
-
-on: [push]
-
+name: Build Waterfall
+on:
+  push:
+    branches:
+      - master
+      - actions #temp
+  pull_request:
+    branches:
+      - master
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # The corresponding tests are performed in the versions
-    # marked as Long Term Support by Oracle and in its
-    # latest version up to the moment.
     strategy:
       matrix:
-        java: [8, 11, 17]
-
+        java: [17,8]
+      fail-fast: true
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
-      
-    - name: Setup JAVA ${{ matrix.java }}
-      uses: actions/setup-java@v2
-      with:
-        java-version: ${{ matrix.java }}
-        distribution: 'adopt'
-        architecture: x64
-    
-    # The corresponding dependencies are stored in the cache to speed up the test.
-    - name: Cache Maven Packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-        
-    - name: Build FlameCord
-      run: |
-        git config --global user.email "matiserv4@gmail.com"
-        git config --global user.name "BAGU5"
-        scripts/build.sh --jar
-      
-    # An artifact is generated in a compressed file according to each JDK build version.
-    - name: Upload FlameCord
-      uses: actions/upload-artifact@v2
-      with:
-        name: FlameCord-JDK${{ matrix.java }}
-        path: FlameCord-Proxy/bootstrap/target/FlameCord.jar
+      - uses: actions/checkout@v2
+      - name: Install Java ${{ matrix.java }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'adopt'
+      - name: patch
+        run: |
+          git config --global user.email "no-reply@github.com"
+          git config --global user.name "Github Actions"
+          ./waterfall p
+      - name: build
+        run: mvn clean install javadoc:javadoc -B
